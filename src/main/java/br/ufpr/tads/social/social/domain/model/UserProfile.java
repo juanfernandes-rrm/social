@@ -12,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "USER_PROFILE")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class UserProfile {
+public class UserProfile implements Notifiable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

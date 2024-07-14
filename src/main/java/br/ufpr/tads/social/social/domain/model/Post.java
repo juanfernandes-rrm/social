@@ -3,13 +3,14 @@ package br.ufpr.tads.social.social.domain.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "POST")
-public class Post {
+public class Post implements Notifiable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
