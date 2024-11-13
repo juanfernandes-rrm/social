@@ -44,7 +44,7 @@ public class ProfileController {
     }
 
     @GetMapping("/{keycloakId}")
-    public GetUserProfileDTO getProfile(@PathVariable String keycloakId) {
+    public GetUserProfileDTO getProfile(@PathVariable UUID keycloakId) {
         return profileService.getProfile(keycloakId);
     }
 
@@ -62,10 +62,31 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.getReceipts(keycloakId, getToken(), pageable));
     }
 
-    private String getUser() {
+    @PostMapping("/follow/{keycloakId}")
+    public ResponseEntity<?> followUser(@PathVariable UUID keycloakId) {
+        try {
+            profileService.followUser(getUser(), keycloakId);
+            return ResponseEntity.ok().build();
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("following")
+    public ResponseEntity<?> followingUsers(@RequestParam("page") int page, @RequestParam("size") int size,
+                                            @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+            return ResponseEntity.ok(profileService.getFollowingUsers(getUser(), pageable));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    private UUID getUser() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("User: {}", jwt.getClaimAsString("preferred_username"));
-        return jwt.getSubject();
+        return UUID.fromString(jwt.getSubject());
     }
 
     private String getToken() {
