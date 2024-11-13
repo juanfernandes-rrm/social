@@ -83,6 +83,41 @@ public class ProfileController {
         }
     }
 
+    @GetMapping("/{keycloakId}/following")
+    public ResponseEntity<?> followingUsersByUser(@PathVariable UUID keycloak,
+                                                  @RequestParam("page") int page, @RequestParam("size") int size,
+                                                  @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+            return ResponseEntity.ok(profileService.getFollowingUsers(keycloak, pageable));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("followers")
+    public ResponseEntity<?> followerUsers(@RequestParam("page") int page, @RequestParam("size") int size,
+                                           @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+            return ResponseEntity.ok(profileService.getFollowerUsers(getUser(), pageable));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{keycloak}/followers")
+    public ResponseEntity<?> followerUsers(@PathVariable UUID keycloakId,
+                                           @RequestParam("page") int page, @RequestParam("size") int size,
+                                           @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+            return ResponseEntity.ok(profileService.getFollowerUsers(keycloakId, pageable));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     private UUID getUser() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("User: {}", jwt.getClaimAsString("preferred_username"));

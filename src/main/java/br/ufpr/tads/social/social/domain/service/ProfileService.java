@@ -17,6 +17,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,14 +86,33 @@ public class ProfileService {
         return getUserProfileDTO;
     }
 
-    public SliceImpl<GetUserProfileDTO> getFollowingUsers(UUID user, Pageable pageable) {
+    public SliceImpl<GetUserProfileDTO> getFollowerUsers(UUID user, Pageable pageable) {
         Pageable pageableForLocalQuery = Pageable.ofSize(pageable.getPageSize()).withPage(pageable.getPageNumber());
         Page<UserProfile> followersPage = userProfileRepository.findFollowersByKeycloakId(user, pageableForLocalQuery);
 
-        List<UUID> followerIds = followersPage.stream()
-                .map(UserProfile::getKeycloakId)
-                .toList();
+        if (followersPage.hasContent()) {
+            List<UUID> followerIds = followersPage.stream()
+                    .map(UserProfile::getKeycloakId)
+                    .toList();
 
-        return profileClient.getProfiles(followerIds, pageable);
+            return profileClient.getProfiles(followerIds, pageable);
+        }
+
+        return new SliceImpl<>(Collections.emptyList(), pageable, false);
+    }
+
+    public SliceImpl<GetUserProfileDTO> getFollowingUsers(UUID userId, Pageable pageable) {
+        Pageable pageableForLocalQuery = Pageable.ofSize(pageable.getPageSize()).withPage(pageable.getPageNumber());
+        Page<UserProfile> followingIdsPage = userProfileRepository.findFollowingByKeycloakId(userId, pageableForLocalQuery);
+
+        if (followingIdsPage.hasContent()) {
+            List<UUID> followingIds = followingIdsPage.getContent().stream().map(UserProfile::getKeycloakId).toList();
+
+            Slice<GetUserProfileDTO> profilesSlice = profileClient.getProfiles(followingIds, pageable);
+
+            return new SliceImpl<>(profilesSlice.getContent(), pageable, followingIdsPage.hasNext());
+        }
+
+        return new SliceImpl<>(Collections.emptyList(), pageable, false);
     }
 }
