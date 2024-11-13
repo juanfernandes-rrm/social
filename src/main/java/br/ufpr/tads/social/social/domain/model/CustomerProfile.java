@@ -17,7 +17,7 @@ public class CustomerProfile extends UserProfile{
     @Column(name = "RECEIPT_ID")
     private List<UUID> registeredReceipts;
 
-    @Column(nullable = false)
+    @Column
     private BigDecimal points;
 
     @OneToMany(mappedBy = "customerProfile", cascade = CascadeType.ALL, orphanRemoval = true)

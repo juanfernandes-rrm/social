@@ -2,10 +2,19 @@ server:
   port: 8085
 
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/nota-social
+          jwk-set-uri: http://localhost:8080/realms/nota-social/protocol/openid-connect/certs
   datasource:
     url: jdbc:mysql://localhost:3306/social_db?createIfNotExists=true
     username: root
     password: my-secret-pw
+#    to local tests
+#    username: root
+#    password: rootpassword
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
@@ -21,4 +30,12 @@ spring:
 
 catalog:
   service:
-    url: http://localhost:8081
+    url: http://localhost:8083
+
+receipt-scan:
+  service:
+    url: http://localhost:8082
+
+register:
+  service:
+    url: http://localhost:8084

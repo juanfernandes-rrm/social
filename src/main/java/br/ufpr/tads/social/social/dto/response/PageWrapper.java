@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
+
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 @NoArgsConstructor
@@ -19,14 +21,21 @@ public class PageWrapper<T> {
     private List<T> content;
     private int number;
     private int size;
-    private long totalElements;
-    private int totalPages;
     private boolean last;
     private boolean first;
     private boolean empty;
+    private Boolean hasNext;
+
+    private Long totalElements;
+    private Integer totalPages;
 
     public Page<T> toPage() {
         Pageable pageable = PageRequest.of(number, size);
-        return new PageImpl<>(content, pageable, totalElements);
+
+        if (totalElements == null || totalPages == null) {
+            return new PageImpl<>(content, pageable, hasNext != null && hasNext ? Long.MAX_VALUE : content.size());
+        } else {
+            return new PageImpl<>(content, pageable, totalElements);
+        }
     }
 }

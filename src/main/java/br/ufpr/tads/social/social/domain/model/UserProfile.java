@@ -3,8 +3,6 @@ package br.ufpr.tads.social.social.domain.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,11 +13,12 @@ import java.util.UUID;
 public class UserProfile implements Notifiable {
 
     @Id
+    @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private UUID userId;
+    @Column(name = "KEYCLOAK_ID", nullable = false)
+    private UUID keycloakId;
 
     @ManyToMany
     @JoinTable(
