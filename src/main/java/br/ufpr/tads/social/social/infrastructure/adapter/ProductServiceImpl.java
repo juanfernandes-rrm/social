@@ -6,7 +6,7 @@ import br.ufpr.tads.social.social.dto.commons.ProductDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.hateoas.PagedModel;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class ProductServiceImpl implements ProductService {
         return productClient.fetchProducts(pageable);
     }
 
-    public PagedModel<ProductDTO> getProductsDetails(List<UUID> productIdList, Pageable pageable) {
+    public SliceImpl<ProductDTO> getProductsDetails(List<UUID> productIdList, Pageable pageable) {
         return productClient.fetchProductsDetails(productIdList, pageable);
     }
 

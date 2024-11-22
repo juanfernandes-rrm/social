@@ -6,12 +6,11 @@ import br.ufpr.tads.social.social.domain.model.FavoriteProducts;
 import br.ufpr.tads.social.social.domain.repository.CustomerProfileRepository;
 import br.ufpr.tads.social.social.domain.repository.FavoriteProductsRepository;
 import br.ufpr.tads.social.social.dto.commons.ProductDTO;
-import br.ufpr.tads.social.social.infrastructure.adapter.ProductClientImpl;
+import br.ufpr.tads.social.social.infrastructure.adapter.CatalogClientImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -29,7 +28,7 @@ public class FavoriteProductService {
     private CustomerProfileRepository customerProfileRepository;
 
     @Autowired
-    private ProductClientImpl productClient;
+    private CatalogClientImpl productClient;
 
     public void addFavorite(UUID keycloakId, UUID productId) throws BusinessException {
         Optional<FavoriteProducts> favoriteProductsOptional = favoriteProductsRepository.findByCustomerProfileKeycloakId(keycloakId);
@@ -63,11 +62,7 @@ public class FavoriteProductService {
         Optional<FavoriteProducts> favoriteProducts = favoriteProductsRepository.findByCustomerProfileKeycloakId(keycloakId);
 
         if (favoriteProducts.isPresent() && !favoriteProducts.get().getProductIds().isEmpty()) {
-            PagedModel<ProductDTO> pagedModel = productClient.fetchProductsDetails(favoriteProducts.get().getProductIds(), pageable);
-            List<ProductDTO> products = pagedModel.getContent().stream().toList();
-            boolean hasNext = pagedModel.getContent().size() == pageable.getPageSize();
-
-            return new SliceImpl<>(products, pageable, hasNext);
+            return productClient.fetchProductsDetails(favoriteProducts.get().getProductIds(), pageable);
         }
         return new SliceImpl<>(Collections.emptyList(), pageable, false);
     }

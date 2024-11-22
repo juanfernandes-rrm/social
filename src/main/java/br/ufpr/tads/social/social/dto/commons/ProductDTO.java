@@ -14,6 +14,7 @@ public class ProductDTO {
     private String image;
     private String price;
     private String unit;
+    private int quantity;
     private UUID storeId;
     private String description;
 
