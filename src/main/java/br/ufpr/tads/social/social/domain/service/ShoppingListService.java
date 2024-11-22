@@ -101,8 +101,6 @@ public class ShoppingListService {
         ShoppingList shoppingList = getShoppingList(keycloakId)
                 .orElseThrow(() -> new RuntimeException("Shopping list not found for user with keycloakId: " + keycloakId));
 
-
-
         List<ProductItemRequestDTO> products = shoppingList.getProductList().stream()
                 .map(productItem -> new ProductItemRequestDTO(productItem.getProductId(), productItem.getQuantity()))
                 .toList();

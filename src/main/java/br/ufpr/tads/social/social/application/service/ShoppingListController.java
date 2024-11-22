@@ -55,7 +55,7 @@ public class ShoppingListController {
         }
     }
 
-    @GetMapping("/{shoppingListId}/calculate")
+    @GetMapping("/calculate")
     public ResponseEntity<SliceImpl<ProductsPriceResponseDTO>> calculateList(@RequestParam("cep") String cep, @RequestParam("distance") double distance) {
         try {
             UUID user = getUser();
