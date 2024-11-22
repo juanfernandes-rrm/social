@@ -1,0 +1,35 @@
+{
+  "product": {
+    "id": "123456",
+    "name": "Test Product",
+    "description": "This is a test product",
+    "lowestPrice": 100.00,
+    "lowestPrinceIn": {
+      "id": "123456",
+      "store": "Walmart"
+    },
+    "image": "https://www.example.com/image.jpg",
+    "reviewRating": 4.6,
+    "reviewCount": 100,
+    "similarProducts": [
+      {
+        "id": "123457",
+        "image": "https://www.example.com/image2.jpg"
+      },
+      {
+        "id": "123457",
+        "image": "https://www.example.com/image2.jpg"
+      }
+    ],
+    "priceHistory": [
+      {
+        "date": "2020-01-01",
+        "price": 100.00
+      },
+      {
+        "date": "2020-01-02",
+        "price": 99.00
+      }
+    ]
+  }
+}
