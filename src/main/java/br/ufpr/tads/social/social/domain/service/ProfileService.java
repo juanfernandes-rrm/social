@@ -115,4 +115,11 @@ public class ProfileService {
 
         return new SliceImpl<>(Collections.emptyList(), pageable, false);
     }
+
+    @Transactional
+    public void deleteProfile(UUID keycloakId) {
+        CustomerProfile profile = customerProfileRepository.findByKeycloakId(keycloakId)
+                .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
+        customerProfileRepository.delete(profile);
+    }
 }
