@@ -7,7 +7,7 @@ import java.util.UUID;
 @Data
 public class ProductDTO {
 
-    private String id;
+    private UUID id;
     private String name;
     private String code;
     private String category;

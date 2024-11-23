@@ -48,9 +48,9 @@ public class CatalogClientImpl implements ProductClient {
         this.catalogServiceUrl = catalogServiceUrl;
     }
 
-    public Optional<ProductDTO> fetchProductById(UUID productId) {
+    public Optional<ProductDTO> fetchProductById(UUID productId, boolean includeStore) {
         ResponseEntity<ProductDTO> responseEntity = restTemplate.exchange(
-                catalogServiceUrl + String.format(GET_PRODUCT_BY_ID, productId),
+                catalogServiceUrl + String.format(GET_PRODUCT_BY_ID, productId) + "?includeStore=" + includeStore,
                 HttpMethod.GET,
                 null,
                 ProductDTO.class

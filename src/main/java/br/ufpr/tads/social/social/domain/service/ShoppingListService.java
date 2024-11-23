@@ -50,7 +50,7 @@ public class ShoppingListService {
 
         List<ProductDTO> enrichedProducts = productDetailsSlice.getContent().stream()
                 .map(product -> {
-                    product.setQuantity(productQuantities.getOrDefault(UUID.fromString(product.getId()), 0));
+                    product.setQuantity(productQuantities.getOrDefault(product.getId(), 0));
                     return product;
                 })
                 .toList();

@@ -31,6 +31,9 @@ public class ProductReview {
     @Column(nullable = false)
     private String text;
 
+    @Column
+    private Boolean approved;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 }

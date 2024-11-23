@@ -2,6 +2,7 @@ package br.ufpr.tads.social.social.domain.repository;
 
 import br.ufpr.tads.social.social.domain.model.ProductReview;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +14,6 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, UU
     List<ProductReview> findByProductIdAndStoreId(UUID productId, UUID storeId, Pageable pageable);
 
     List<ProductReview> findByProductId(UUID productId, Pageable pageable);
+
+    Slice<ProductReview> findByApprovedNull(Pageable pageable);
 }

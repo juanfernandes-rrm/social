@@ -1,5 +1,6 @@
 package br.ufpr.tads.social.social.infrastructure.adapter;
 
+import br.ufpr.tads.social.social.dto.commons.BranchDTO;
 import br.ufpr.tads.social.social.dto.response.PageWrapper;
 import br.ufpr.tads.social.social.dto.response.profile.GetUserProfileDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ public class ProfileClient {
 
     private static String GET_PROFILE = "/account/user/%s";
     private static String GET_PROFILES = "/account/user/details";
+    private static String GET_BRANCH = "/store/branch/%s";
 
     @Autowired
     private RestTemplate restTemplate;
@@ -34,6 +36,21 @@ public class ProfileClient {
     public GetUserProfileDTO getProfile(UUID userKeycloakId) {
         ResponseEntity<GetUserProfileDTO> responseEntity = restTemplate.exchange(
                 registerServiceUrl + String.format(GET_PROFILE, userKeycloakId),
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {}
+        );
+
+        if(responseEntity.getStatusCode().is2xxSuccessful()) {
+            return responseEntity.getBody();
+        }
+
+        return null;
+    }
+
+    public BranchDTO getStoreBranch(UUID storeId) {
+        ResponseEntity<BranchDTO> responseEntity = restTemplate.exchange(
+                registerServiceUrl + String.format(GET_BRANCH, storeId),
                 HttpMethod.GET,
                 null,
                 new ParameterizedTypeReference<>() {}
