@@ -23,7 +23,8 @@ public class CustomerProfile extends UserProfile{
     @OneToMany(mappedBy = "customerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShoppingList> shoppingLists;
 
+    //TODO: revisar se é necessário
     @OneToMany(mappedBy = "customerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Review> reviews;
+    private List<ProductReview> reviews;
 
 }

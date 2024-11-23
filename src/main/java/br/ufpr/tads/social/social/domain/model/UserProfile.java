@@ -31,6 +31,4 @@ public class UserProfile implements Notifiable {
     @ManyToMany(mappedBy = "usersFollowing")
     private List<UserProfile> usersFollowers;
 
-    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
 }

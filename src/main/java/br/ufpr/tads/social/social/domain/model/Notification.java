@@ -25,7 +25,6 @@ public class Notification{
 
     @Any
     @AnyDiscriminator(DiscriminatorType.STRING)
-    @AnyDiscriminatorValue(discriminator = "POST", entity = Post.class)
     @AnyDiscriminatorValue(discriminator = "USER_PROFILE", entity = UserProfile.class)
     @AnyKeyJavaClass(UUID.class)
     @Column(name = "ENTITY_TYPE")

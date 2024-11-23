@@ -2,7 +2,6 @@ package br.ufpr.tads.social.social.infrastructure.adapter;
 
 import br.ufpr.tads.social.social.domain.port.product.ProductClient;
 import br.ufpr.tads.social.social.dto.commons.ProductDTO;
-import br.ufpr.tads.social.social.dto.commons.ProductItemRequestDTO;
 import br.ufpr.tads.social.social.dto.request.ProductsPriceRequestDTO;
 import br.ufpr.tads.social.social.dto.response.PageWrapper;
 import br.ufpr.tads.social.social.dto.response.ProductsPriceResponseDTO;
@@ -22,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -30,7 +30,7 @@ import static java.util.Objects.requireNonNull;
 @Component
 public class CatalogClientImpl implements ProductClient {
 
-    public static final String GET_PRODUCT_BY_ID = "/product/post?id=";
+    public static final String GET_PRODUCT_BY_ID = "/product/%s";
     public static final String GET_PRODUCTS_WITH_LOWEST_PRICE = "/product/lowest-price";
     public static final String GET_PRODUCTS_DETAILS = "/product/products-details";
     public static final String POST_LIST_PRODUCTS_PRICE = "/product/prices-by-store";
@@ -46,6 +46,17 @@ public class CatalogClientImpl implements ProductClient {
     public CatalogClientImpl(RestTemplate restTemplate, @Value("${catalog.service.url}") String catalogServiceUrl) {
         this.restTemplate = restTemplate;
         this.catalogServiceUrl = catalogServiceUrl;
+    }
+
+    public Optional<ProductDTO> fetchProductById(UUID productId) {
+        ResponseEntity<ProductDTO> responseEntity = restTemplate.exchange(
+                catalogServiceUrl + String.format(GET_PRODUCT_BY_ID, productId),
+                HttpMethod.GET,
+                null,
+                ProductDTO.class
+        );
+
+        return Optional.ofNullable(responseEntity.getBody());
     }
 
     @Override
