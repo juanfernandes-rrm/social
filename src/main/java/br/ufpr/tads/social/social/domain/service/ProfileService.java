@@ -79,13 +79,6 @@ public class ProfileService {
         return mapToDTO(customerProfileRepository.save(customerProfile));
     }
 
-    private GetUserProfileDTO mapToDTO(CustomerProfile customerProfile) {
-        GetUserProfileDTO getUserProfileDTO = new GetUserProfileDTO();
-        getUserProfileDTO.setId(customerProfile.getId());
-        getUserProfileDTO.setKeycloakId(customerProfile.getKeycloakId());
-        return getUserProfileDTO;
-    }
-
     public SliceImpl<GetUserProfileDTO> getFollowerUsers(UUID user, Pageable pageable) {
         Pageable pageableForLocalQuery = Pageable.ofSize(pageable.getPageSize()).withPage(pageable.getPageNumber());
         Page<UserProfile> followersPage = userProfileRepository.findFollowersByKeycloakId(user, pageableForLocalQuery);
@@ -122,4 +115,12 @@ public class ProfileService {
                 .orElseThrow(() -> new RuntimeException("Perfil não encontrado"));
         customerProfileRepository.delete(profile);
     }
+
+    private GetUserProfileDTO mapToDTO(CustomerProfile customerProfile) {
+        GetUserProfileDTO getUserProfileDTO = new GetUserProfileDTO();
+        getUserProfileDTO.setId(customerProfile.getId());
+        getUserProfileDTO.setKeycloakId(customerProfile.getKeycloakId());
+        return getUserProfileDTO;
+    }
+
 }

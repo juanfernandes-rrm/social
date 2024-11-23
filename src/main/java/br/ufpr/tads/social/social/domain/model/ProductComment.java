@@ -19,6 +19,9 @@ public class ProductComment {
     @Column(nullable = false)
     private UUID productId;
 
+    @Column(nullable = false)
+    private UUID storeId;
+
     @ManyToOne
     @JoinColumn(name = "REVIEW_ID")
     private ProductReview review;

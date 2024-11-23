@@ -18,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -48,7 +49,7 @@ public class ProfileClient {
         return null;
     }
 
-    public BranchDTO getStoreBranch(UUID storeId) {
+    public Optional<BranchDTO> getStoreBranch(UUID storeId) {
         ResponseEntity<BranchDTO> responseEntity = restTemplate.exchange(
                 registerServiceUrl + String.format(GET_BRANCH, storeId),
                 HttpMethod.GET,
@@ -57,10 +58,10 @@ public class ProfileClient {
         );
 
         if(responseEntity.getStatusCode().is2xxSuccessful()) {
-            return responseEntity.getBody();
+            return Optional.ofNullable(responseEntity.getBody());
         }
 
-        return null;
+        return Optional.empty();
     }
 
     public SliceImpl<GetUserProfileDTO> getProfiles(List<UUID> idUsersFollowing, Pageable pageable) {

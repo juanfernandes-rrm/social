@@ -1,10 +1,16 @@
 package br.ufpr.tads.social.social.dto.response.profile;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class GetUserProfileDTO {
 
     private UUID id;
@@ -14,4 +20,8 @@ public class GetUserProfileDTO {
     private String email;
     private String photo;
 
+    public GetUserProfileDTO(UUID id, UUID keycloakId) {
+        this.id = id;
+        this.keycloakId = keycloakId;
+    }
 }

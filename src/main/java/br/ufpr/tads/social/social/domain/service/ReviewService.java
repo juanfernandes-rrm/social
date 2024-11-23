@@ -134,7 +134,7 @@ public class ReviewService {
 
         if (includeDetails) {
             responseDTO.setProduct(catalogClient.fetchProductById(review.getProductId(), false).orElse(null));
-            responseDTO.setStore(profileClient.getStoreBranch(review.getStoreId()));
+            responseDTO.setStore(profileClient.getStoreBranch(review.getStoreId()).orElse(null));
         }else {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setId(review.getProductId());
