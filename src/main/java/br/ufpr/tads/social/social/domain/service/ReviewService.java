@@ -7,6 +7,7 @@ import br.ufpr.tads.social.social.domain.repository.ProductReviewRepository;
 import br.ufpr.tads.social.social.dto.request.CreateReviewRequestDTO;
 import br.ufpr.tads.social.social.dto.request.UpdateReviewRequestDTO;
 import br.ufpr.tads.social.social.dto.response.ProductReviewResponseDTO;
+import br.ufpr.tads.social.social.dto.response.TotalReviewsResponseDTO;
 import br.ufpr.tads.social.social.infrastructure.adapter.CatalogClientImpl;
 import br.ufpr.tads.social.social.infrastructure.adapter.ProfileClient;
 import lombok.extern.slf4j.Slf4j;
@@ -107,6 +108,10 @@ public class ReviewService {
         responseDTO.setRating(review.getRating());
         responseDTO.setCreatedAt(review.getCreatedAt().toString());
         return responseDTO;
+    }
+
+    public TotalReviewsResponseDTO getTotalReviews() {
+        return new TotalReviewsResponseDTO(reviewRepository.count());
     }
 }
 
