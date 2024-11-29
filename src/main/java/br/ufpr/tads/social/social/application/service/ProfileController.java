@@ -2,6 +2,7 @@ package br.ufpr.tads.social.social.application.service;
 
 import br.ufpr.tads.social.social.domain.service.FavoriteProductService;
 import br.ufpr.tads.social.social.domain.service.ProfileService;
+import br.ufpr.tads.social.social.domain.service.ReviewService;
 import br.ufpr.tads.social.social.dto.commons.ProductDTO;
 import br.ufpr.tads.social.social.dto.response.profile.GetUserProfileDTO;
 import br.ufpr.tads.social.social.dto.response.profile.ReceiptSummaryResponseDTO;
@@ -30,6 +31,9 @@ public class ProfileController {
 
     @Autowired
     private FavoriteProductService favoriteProductService;
+
+    @Autowired
+    private ReviewService reviewService;
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
@@ -106,13 +110,25 @@ public class ProfileController {
         }
     }
 
-    @GetMapping("/{keycloak}/followers")
+    @GetMapping("/{keycloakId}/followers")
     public ResponseEntity<?> followerUsers(@PathVariable UUID keycloakId,
                                            @RequestParam("page") int page, @RequestParam("size") int size,
                                            @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
             return ResponseEntity.ok(profileService.getFollowerUsers(keycloakId, pageable));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{keycloakId}/reviews")
+    public ResponseEntity<?> getReviews(@PathVariable UUID keycloakId,
+                                        @RequestParam("page") int page, @RequestParam("size") int size,
+                                        @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+            return ResponseEntity.ok(reviewService.getReviews(keycloakId, pageable));
         }catch (Exception e){
             return ResponseEntity.badRequest().build();
         }

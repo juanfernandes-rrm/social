@@ -75,6 +75,22 @@ public class ReviewService {
         return reviews;
     }
 
+    public List<ProductReviewResponseDTO> getReviews(UUID userKeycloakId, Pageable pageable) {
+        List<ProductReviewResponseDTO> reviews = new ArrayList<>();
+
+        customerProfileRepository.findByKeycloakId(userKeycloakId).ifPresentOrElse(
+            user -> reviewRepository.findByCustomerProfile(user, pageable).forEach(
+                review -> reviews.add(mapToResponseDTO(review, true))
+            ),
+            () -> {
+                log.error("Usuário não encontrado");
+                throw new RuntimeException("Usuário não encontrado");
+            }
+        );
+
+        return reviews;
+    }
+
     public void deleteReview(UUID userId, UUID reviewId) {
         ProductReview review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
