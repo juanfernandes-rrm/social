@@ -8,6 +8,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -18,7 +19,9 @@ public interface ProductCommentRepository extends JpaRepository<ProductComment, 
 
     Slice<ProductComment> findByParentCommentIsNullAndProductId(UUID productId, Pageable pageable);
 
-    Slice<ProductComment> findByParentCommentId(UUID id, PageRequest pageRequest);
+    List<ProductComment> findByParentCommentId(UUID id, PageRequest pageRequest);
 
     Slice<ProductComment> findByParentCommentIsNullAndProductIdAndStoreId(UUID productId, UUID storeId, Pageable pageable);
+
+    Slice<ProductComment> findByParentCommentIsNullAndReviewId(UUID reviewId, Pageable pageable);
 }

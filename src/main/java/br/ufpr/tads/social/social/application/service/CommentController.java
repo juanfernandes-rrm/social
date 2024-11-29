@@ -35,12 +35,13 @@ public class CommentController {
     @GetMapping("/{productId}")
     public ResponseEntity<?> getCommentsByProduct(@PathVariable UUID productId,
                                                                               @RequestParam(value = "storeId", required = false) UUID storeId,
-                                                                              @RequestParam(value = "maxReplies", required = false, defaultValue = "3") int maxReplies,
+                                                                              @RequestParam(value = "maxDepth", required = false, defaultValue = "2") int maxDepth,
+                                                                              @RequestParam(value = "maxRepliesPerLevel", required = false, defaultValue = "3") int maxRepliesPerLevel,
                                                                               @RequestParam("page") int page, @RequestParam("size") int size,
                                                                               @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
         log.info("Getting comments for product with id {}", productId);
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        return ResponseEntity.ok(commentService.getComments(productId, storeId, maxReplies, pageable));
+        return ResponseEntity.ok(commentService.getComments(productId, storeId, maxRepliesPerLevel, maxDepth, pageable));
     }
 
     @DeleteMapping("/{commentId}")

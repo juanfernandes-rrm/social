@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -18,4 +19,7 @@ public class ReplyDTO {
     private GetUserProfileDTO user;
     private String text;
     private LocalDateTime createdAt;
+    private UUID parentCommentId;
+    private List<ReplyDTO> replies;
+    private boolean hasMoreReplies;
 }

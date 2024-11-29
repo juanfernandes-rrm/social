@@ -17,6 +17,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -63,15 +64,32 @@ public class CommentService {
             comment.setReview(productReview);
         }
 
-        return buildCommentResponse(productCommentRepository.save(comment), 1);
+        return buildCommentResponseWithReplies(productCommentRepository.save(comment), 0, 0, 0);
     }
 
-    public PaginatedCommentsResponseDTO getComments(UUID productId, UUID storeId, int maxReplies, Pageable pageable) {
-
+    public PaginatedCommentsResponseDTO getComments(UUID productId, UUID storeId, int maxRepliesPerLevel, int maxDepth, Pageable pageable) {
         Slice<ProductComment> rootComments = getRootComments(productId, storeId, pageable);
 
         List<CommentResponseDTO> comments = rootComments.getContent().stream()
-                .map(rootComment -> buildCommentResponse(rootComment, maxReplies))
+                .map(rootComment -> buildCommentResponseWithReplies(rootComment, maxDepth, 0, maxRepliesPerLevel))
+                .collect(Collectors.toList());
+
+        return PaginatedCommentsResponseDTO.builder()
+                .content(comments)
+                .pageable(PageableDTO.builder()
+                        .pageNumber(rootComments.getNumber())
+                        .pageSize(rootComments.getSize())
+                        .build())
+                .hasNext(rootComments.hasNext())
+                .build();
+    }
+
+    //TODO: adicionar comentários no retorno das consultas das reviews
+    public PaginatedCommentsResponseDTO getReviewComments(UUID reviewId, int maxRepliesPerLevel, int maxDepth, Pageable pageable) {
+        Slice<ProductComment> rootComments = getRootReviewComments(reviewId, pageable);
+
+        List<CommentResponseDTO> comments = rootComments.getContent().stream()
+                .map(rootComment -> buildCommentResponseWithReplies(rootComment, maxDepth, 0, maxRepliesPerLevel))
                 .collect(Collectors.toList());
 
         return PaginatedCommentsResponseDTO.builder()
@@ -99,6 +117,10 @@ public class CommentService {
         );
     }
 
+    private Slice<ProductComment> getRootReviewComments(UUID reviewId, Pageable pageable) {
+        return productCommentRepository.findByParentCommentIsNullAndReviewId(reviewId, pageable);
+    }
+
     public SliceImpl<ProductComment> getRootCommentsByProduct(UUID productId, Pageable pageable) {
         Slice<ProductComment> commentSlice = productCommentRepository.findByParentCommentIsNullAndProductId(productId, pageable);
         return new SliceImpl<>(commentSlice.getContent(), commentSlice.getPageable(), commentSlice.hasNext());
@@ -123,44 +145,68 @@ public class CommentService {
                 () -> new RuntimeException("Store not found"));
     }
 
-    private CommentResponseDTO buildCommentResponse(ProductComment comment, int maxReplies) {
-        CommentHeaderDTO header = CommentHeaderDTO.builder()
+    private CommentResponseDTO buildCommentResponseWithReplies(ProductComment comment, int maxDepth, int currentDepth, int maxRepliesPerLevel) {
+        // Constrói o comentário básico
+        CommentResponseDTO rootComment = buildRootComment(comment);
+
+        // Se o nível atual for menor que o máximo, buscamos as respostas
+        if (currentDepth < maxDepth) {
+            // Usando maxRepliesPerLevel para determinar o número máximo de respostas por nível
+            List<ProductComment> replies = productCommentRepository.findByParentCommentId(comment.getId(), PageRequest.of(0, maxRepliesPerLevel));
+            List<ReplyDTO> repliesDTO = replies.stream()
+                    .map(reply -> buildReplyDTO(reply, maxDepth, currentDepth + 1, maxRepliesPerLevel))
+                    .collect(Collectors.toList());
+            rootComment.setReplies(repliesDTO);  // Aqui ajustamos para `ReplyDTO`
+            rootComment.setHasMoreReplies(replies.size() == maxRepliesPerLevel); // Indica se há mais respostas (pode ajustar com base em sua lógica de paginação)
+        } else {
+            // Indica que há mais replies caso o nível máximo tenha sido atingido
+            rootComment.setHasMoreReplies(true);
+        }
+
+        return rootComment;
+    }
+
+    private static CommentResponseDTO buildRootComment(ProductComment comment) {
+        return CommentResponseDTO.builder()
+                .id(comment.getId())
                 .productId(comment.getProductId())
                 .storeId(comment.getStoreId())
-                .reviewId(nonNull(comment.getReview()) ? comment.getReview().getId() : null)
-                .build();
-
-        Slice<ProductComment> repliesSlice = productCommentRepository.findByParentCommentId(
-                comment.getId(),
-                PageRequest.of(0, maxReplies)
-        );
-
-        List<ReplyDTO> replies = repliesSlice.getContent().stream()
-                .map(reply -> ReplyDTO.builder()
-                        .id(reply.getId())
-                        .user(new GetUserProfileDTO(
-                                reply.getUserProfile().getId(),
-                                reply.getUserProfile().getKeycloakId()
-                        ))
-                        .text(reply.getText())
-                        .createdAt(reply.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
-
-        return CommentResponseDTO.builder()
-                .header(header)
-                .id(comment.getId())
-                .user(new GetUserProfileDTO(
-                        comment.getUserProfile().getId(),
-                        comment.getUserProfile().getKeycloakId()
-                ))
+                .reviewId(comment.getReview() != null ? comment.getReview().getId() : null)
+                .user(new GetUserProfileDTO(comment.getUserProfile().getId(), comment.getUserProfile().getKeycloakId()))
                 .text(comment.getText())
                 .createdAt(comment.getCreatedAt())
                 .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
-                .replies(replies)
-                .hasMoreReplies(repliesSlice.hasNext())
                 .build();
     }
+
+
+    private ReplyDTO buildReplyDTO(ProductComment reply, int maxDepth, int currentDepth, int maxRepliesPerLevel) {
+        ReplyDTO replyDTO = ReplyDTO.builder()
+                .id(reply.getId())
+                .user(new GetUserProfileDTO(reply.getUserProfile().getId(), reply.getUserProfile().getKeycloakId()))
+                .text(reply.getText())
+                .createdAt(reply.getCreatedAt())
+                .parentCommentId(reply.getParentComment() != null ? reply.getParentComment().getId() : null)
+                .replies(new ArrayList<>())
+                .hasMoreReplies(false)
+                .build();
+
+        // Recursão para buscar replies dentro das replies
+        if (currentDepth < maxDepth) {
+            // Usando maxRepliesPerLevel para determinar o número máximo de respostas por nível
+            List<ProductComment> nestedReplies = productCommentRepository.findByParentCommentId(reply.getId(), PageRequest.of(0, maxRepliesPerLevel));
+            List<ReplyDTO> nestedRepliesDTO = nestedReplies.stream()
+                    .map(nestedReply -> buildReplyDTO(nestedReply, maxDepth, currentDepth + 1, maxRepliesPerLevel))
+                    .collect(Collectors.toList());
+            replyDTO.setReplies(nestedRepliesDTO);
+            replyDTO.setHasMoreReplies(nestedReplies.size() == maxRepliesPerLevel); // Indica se há mais respostas
+        }
+
+        return replyDTO;
+    }
+
+
+
 
 }
 

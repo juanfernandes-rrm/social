@@ -16,12 +16,14 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CommentResponseDTO {
 
-    private CommentHeaderDTO header;
     private UUID id;
+    private UUID productId;
+    private UUID storeId;
+    private UUID reviewId;
     private GetUserProfileDTO user;
     private String text;
-    private LocalDateTime createdAt;
     private UUID parentCommentId;
     private List<ReplyDTO> replies;
     private boolean hasMoreReplies;
+    private LocalDateTime createdAt;
 }

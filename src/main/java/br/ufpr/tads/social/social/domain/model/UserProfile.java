@@ -10,7 +10,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "USER_PROFILE")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class UserProfile implements Notifiable {
+public class UserProfile {
 
     @Id
     @Column(name = "ID")
@@ -30,5 +30,8 @@ public class UserProfile implements Notifiable {
 
     @ManyToMany(mappedBy = "usersFollowing")
     private List<UserProfile> usersFollowers;
+
+    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductComment> productComments;
 
 }
