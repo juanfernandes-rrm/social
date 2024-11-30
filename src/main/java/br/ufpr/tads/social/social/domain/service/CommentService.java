@@ -126,11 +126,15 @@ public class CommentService {
         return new SliceImpl<>(commentSlice.getContent(), commentSlice.getPageable(), commentSlice.hasNext());
     }
 
-    public void deleteComment(UUID commentId) {
-        if (!productCommentRepository.existsById(commentId)) {
-            throw new IllegalArgumentException("Comment not found");
-        }
-        productCommentRepository.deleteById(commentId);
+    public void deleteComment(UUID user, UUID commentId) {
+        productCommentRepository.findById(commentId).ifPresent(comment -> {
+            if (!comment.getUserProfile().getKeycloakId().equals(user)) {
+                throw new RuntimeException("User is not the owner of the comment");
+            }
+            productCommentRepository.delete(comment);
+        });
+
+        throw new IllegalArgumentException("Comment not found");
     }
 
     public CommentResponseDTO replyToComment(UUID userKeycloakId, CreateCommentRequestDTO createCommentRequestDTO) {

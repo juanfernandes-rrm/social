@@ -8,23 +8,26 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 //TODO: adicionar configuração para rotas publicas -> talvez deixar liberado aqui e bloquear no gateway
 public class SecurityConfiguration {
 
+    private static final String[] AUTH_WHITELIST = {
+            "/profile/*/favorites",
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authz -> authz
-                .requestMatchers("/public/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            .oauth2ResourceServer(oauth2 -> oauth2
-                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-            );
-
-        return http.build();
+        return http.authorizeHttpRequests(request -> request
+                            .requestMatchers("/profile/*/favorites").permitAll()
+                            .anyRequest().authenticated())
+                        .oauth2ResourceServer(oauth2 -> oauth2
+                                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                        .build();
     }
 
     private JwtAuthenticationConverter jwtAuthenticationConverter() {

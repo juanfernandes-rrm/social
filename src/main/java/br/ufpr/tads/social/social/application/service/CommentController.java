@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<?> createComment(@RequestBody CreateCommentRequestDTO request) {
         try {
@@ -44,10 +46,11 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getComments(productId, storeId, maxRepliesPerLevel, maxDepth, pageable));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{commentId}")
     public ResponseEntity<?> deleteComment(@PathVariable UUID commentId) {
         try {
-            commentService.deleteComment(commentId);
+            commentService.deleteComment(commentId, getUser());
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

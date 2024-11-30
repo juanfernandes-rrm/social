@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ public class ShoppingListController {
     @Autowired
     private ShoppingListService shoppingListService;
 
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     @GetMapping
     public ResponseEntity<SliceImpl<ProductDTO>> getOrCreateList() {
         try {
@@ -33,6 +35,7 @@ public class ShoppingListController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     @PostMapping("/add-products")
     public void addProductsToList(@RequestBody ShoppingListRequestDTO shoppingListRequestDTO) {
         try {
@@ -44,6 +47,7 @@ public class ShoppingListController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     @PostMapping("/remove-products")
     public void removeProductsFromList(@RequestBody ShoppingListRequestDTO shoppingListRequestDTO) {
         try {
@@ -55,6 +59,7 @@ public class ShoppingListController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     @GetMapping("/calculate")
     public ResponseEntity<SliceImpl<ProductsPriceResponseDTO>> calculateList(@RequestParam("cep") String cep, @RequestParam("distance") double distance) {
         try {
