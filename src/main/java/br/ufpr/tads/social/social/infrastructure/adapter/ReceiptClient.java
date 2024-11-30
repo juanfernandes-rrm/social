@@ -17,8 +17,11 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static java.util.Objects.nonNull;
 
 @Service
 public class ReceiptClient {
@@ -30,10 +33,8 @@ public class ReceiptClient {
     @Value("${receipt-scan.service.url}")
     private String receiptScanServiceUrl;
 
-    public Slice<ReceiptSummaryResponseDTO> getScannedReceipts(UUID userKeycloakId, String token, Pageable pageable) {
+    public Slice<ReceiptSummaryResponseDTO> getScannedReceipts(UUID userKeycloakId, Pageable pageable) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
         ResponseEntity<CustomSliceDTO<ReceiptSummaryResponseDTO>> responseEntity = restTemplate.exchange(
@@ -45,8 +46,15 @@ public class ReceiptClient {
 
         if (responseEntity.getStatusCode().is2xxSuccessful()) {
             CustomSliceDTO<ReceiptSummaryResponseDTO> customSlice = responseEntity.getBody();
-            List<ReceiptSummaryResponseDTO> content = customSlice.getContent();
-            return new SliceImpl<>(content, pageable, customSlice.isHasNext());
+
+            List<ReceiptSummaryResponseDTO> content = new ArrayList<>();
+            boolean hasNext = false;
+            if(nonNull(customSlice)) {
+                content = customSlice.getContent();
+                hasNext = customSlice.isHasNext();
+            }
+
+            return new SliceImpl<>(content, pageable, hasNext);
         }
 
         return null;

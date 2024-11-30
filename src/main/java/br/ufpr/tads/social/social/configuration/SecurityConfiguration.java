@@ -18,12 +18,20 @@ public class SecurityConfiguration {
 
     private static final String[] AUTH_WHITELIST = {
             "/profile/*/favorites",
+            "/profile/*/following",
+            "/profile/*/followers",
+            "/profile/*/reviews",
+            "/profile/*/receipts",
+            "/profile/*",
+            "/comment/*",
+            "/product/reviews/*",
+            "/product/comments/*",
     };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(request -> request
-                            .requestMatchers("/profile/*/favorites").permitAll()
+                            .requestMatchers(AUTH_WHITELIST).permitAll()
                             .anyRequest().authenticated())
                         .oauth2ResourceServer(oauth2 -> oauth2
                                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())))

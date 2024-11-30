@@ -13,6 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -35,19 +36,24 @@ public class ProfileClient {
     private String registerServiceUrl;
 
     public GetUserProfileDTO getProfile(UUID userKeycloakId) {
-        ResponseEntity<GetUserProfileDTO> responseEntity = restTemplate.exchange(
-                registerServiceUrl + String.format(GET_PROFILE, userKeycloakId),
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<>() {}
-        );
+        try {
+            ResponseEntity<GetUserProfileDTO> responseEntity = restTemplate.exchange(
+                    registerServiceUrl + String.format(GET_PROFILE, userKeycloakId),
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<>() {}
+            );
 
-        if(responseEntity.getStatusCode().is2xxSuccessful()) {
-            return responseEntity.getBody();
+            if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                return responseEntity.getBody();
+            } else {
+                throw new RuntimeException("Error body: " + responseEntity.getBody());
+            }
+        } catch (HttpServerErrorException e) {
+            throw new RuntimeException("Error 500: " + e.getResponseBodyAsString());
         }
-
-        return null;
     }
+
 
     public Optional<BranchDTO> getStoreBranch(UUID storeId) {
         ResponseEntity<BranchDTO> responseEntity = restTemplate.exchange(

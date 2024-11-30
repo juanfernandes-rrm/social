@@ -43,29 +43,46 @@ public class ProfileController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public GetUserProfileDTO getProfile() {
-        return profileService.getProfile(getUser());
+    public ResponseEntity<GetUserProfileDTO> getProfile() {
+        try {
+            return ResponseEntity.ok(profileService.getProfile(getUser()));
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/{keycloakId}")
-    public GetUserProfileDTO getProfile(@PathVariable UUID keycloakId) {
-        return profileService.getProfile(keycloakId);
+    public ResponseEntity<GetUserProfileDTO> getProfile(@PathVariable UUID keycloakId) {
+        try {
+            return ResponseEntity.ok(profileService.getProfile(keycloakId));
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
-    @GetMapping("{keycloakId}/favorites")
+    @GetMapping("/{keycloakId}/favorites")
     public ResponseEntity<Slice<ProductDTO>> getFavorites(@PathVariable UUID keycloakId, @RequestParam("page") int page, @RequestParam("size") int size,
                                                           @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        return ResponseEntity.ok(favoriteProductService.getFavorites(keycloakId, pageable));
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+            return ResponseEntity.ok(favoriteProductService.getFavorites(keycloakId, pageable));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @GetMapping("{keycloakId}/receipts")
+    @GetMapping("/{keycloakId}/receipts")
     public ResponseEntity<Slice<ReceiptSummaryResponseDTO>> getReceipts(@PathVariable UUID keycloakId, @RequestParam("page") int page, @RequestParam("size") int size,
                                                                         @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-        return ResponseEntity.ok(profileService.getReceipts(keycloakId, getToken(), pageable));
+        try {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+            return ResponseEntity.ok(profileService.getReceipts(keycloakId, pageable));
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/follow/{keycloakId}")
     public ResponseEntity<?> followUser(@PathVariable UUID keycloakId) {
         try {
@@ -76,7 +93,8 @@ public class ProfileController {
         }
     }
 
-    @GetMapping("following")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/following")
     public ResponseEntity<?> followingUsers(@RequestParam("page") int page, @RequestParam("size") int size,
                                             @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
         try {
@@ -88,18 +106,19 @@ public class ProfileController {
     }
 
     @GetMapping("/{keycloakId}/following")
-    public ResponseEntity<?> followingUsersByUser(@PathVariable UUID keycloak,
+    public ResponseEntity<?> followingUsersByUser(@PathVariable UUID keycloakId,
                                                   @RequestParam("page") int page, @RequestParam("size") int size,
                                                   @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-            return ResponseEntity.ok(profileService.getFollowingUsers(keycloak, pageable));
+            return ResponseEntity.ok(profileService.getFollowingUsers(keycloakId, pageable));
         }catch (Exception e){
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @GetMapping("followers")
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/followers")
     public ResponseEntity<?> followerUsers(@RequestParam("page") int page, @RequestParam("size") int size,
                                            @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
         try {
@@ -111,13 +130,13 @@ public class ProfileController {
     }
 
     @GetMapping("/{keycloakId}/followers")
-    public ResponseEntity<?> followerUsers(@PathVariable UUID keycloakId,
-                                           @RequestParam("page") int page, @RequestParam("size") int size,
-                                           @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
+    public ResponseEntity<?> followerUsersByUser(@PathVariable("keycloakId") UUID keycloakId,
+                                                 @RequestParam("page") int page, @RequestParam("size") int size,
+                                                 @RequestParam("sortDirection") Sort.Direction sortDirection, @RequestParam("sortBy") String sortBy) {
         try {
             Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
             return ResponseEntity.ok(profileService.getFollowerUsers(keycloakId, pageable));
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -138,11 +157,6 @@ public class ProfileController {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info("User: {}", jwt.getClaimAsString("preferred_username"));
         return UUID.fromString(jwt.getSubject());
-    }
-
-    private String getToken() {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return jwt.getTokenValue();
     }
 
 }

@@ -42,8 +42,8 @@ public class ProfileService {
         return profileClient.getProfile(userKeycloakId);
     }
 
-    public Slice<ReceiptSummaryResponseDTO> getReceipts(UUID keycloakId, String token, Pageable pageable) {
-        return receiptClient.getScannedReceipts(keycloakId, token, pageable);
+    public Slice<ReceiptSummaryResponseDTO> getReceipts(UUID keycloakId, Pageable pageable) {
+        return receiptClient.getScannedReceipts(keycloakId, pageable);
     }
 
     @Transactional
