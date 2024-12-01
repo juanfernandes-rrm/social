@@ -26,6 +26,7 @@ public class SecurityConfiguration {
             "/comment/*",
             "/product/reviews/*",
             "/product/comments/*",
+            "/ranking",
     };
 
     @Bean
