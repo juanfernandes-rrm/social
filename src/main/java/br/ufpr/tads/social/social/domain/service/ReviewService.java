@@ -63,11 +63,11 @@ public class ReviewService {
         List<ProductReviewResponseDTO> reviews = new ArrayList<>();
 
         if (storeId.isPresent()) {
-            reviewRepository.findByProductIdAndStoreId(productId, storeId.get(), pageable).forEach(
+            reviewRepository.findByProductIdAndStoreIdAndApprovedTrue(productId, storeId.get(), pageable).forEach(
                     review -> reviews.add(mapToResponseDTO(review, false))
             );
         } else {
-            reviewRepository.findByProductId(productId, pageable).forEach(
+            reviewRepository.findByProductIdAndApprovedTrue(productId, pageable).forEach(
                     review -> reviews.add(mapToResponseDTO(review, false))
             );
         }

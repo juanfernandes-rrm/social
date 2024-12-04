@@ -12,9 +12,9 @@ import java.util.UUID;
 
 @Repository
 public interface ProductReviewRepository extends JpaRepository<ProductReview, UUID> {
-    List<ProductReview> findByProductIdAndStoreId(UUID productId, UUID storeId, Pageable pageable);
+    List<ProductReview> findByProductIdAndStoreIdAndApprovedTrue(UUID productId, UUID storeId, Pageable pageable);
 
-    List<ProductReview> findByProductId(UUID productId, Pageable pageable);
+    List<ProductReview> findByProductIdAndApprovedTrue(UUID productId, Pageable pageable);
 
     Slice<ProductReview> findByApprovedNull(Pageable pageable);
 
